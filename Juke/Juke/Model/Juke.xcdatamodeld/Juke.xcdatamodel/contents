@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="21513" systemVersion="22D49" minimumToolsVersion="Automatic" sourceLanguage="Swift" usedWithCloudKit="YES" userDefinedModelVersionIdentifier="">
+    <entity name="Artist" representedClassName="Artist" syncable="YES" codeGenerationType="class">
+        <attribute name="name" optional="YES" attributeType="String"/>
+        <relationship name="sideAs" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Disc" inverseName="sideAArtist" inverseEntity="Disc"/>
+        <relationship name="sideBs" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Disc" inverseName="sideBArtist" inverseEntity="Disc"/>
+    </entity>
+    <entity name="Disc" representedClassName="Disc" syncable="YES" codeGenerationType="class">
+        <attribute name="createdAt" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="sideATitle" optional="YES" attributeType="String" minValueString="1" defaultValueString=""/>
+        <attribute name="sideBTitle" optional="YES" attributeType="String" minValueString="1" defaultValueString=""/>
+        <relationship name="image" optional="YES" maxCount="1" deletionRule="Cascade" destinationEntity="DiscImage" inverseName="disc" inverseEntity="DiscImage"/>
+        <relationship name="sideAArtist" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Artist" inverseName="sideAs" inverseEntity="Artist"/>
+        <relationship name="sideBArtist" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Artist" inverseName="sideBs" inverseEntity="Artist"/>
+    </entity>
+    <entity name="DiscImage" representedClassName="DiscImage" syncable="YES" codeGenerationType="class">
+        <attribute name="imageData" optional="YES" attributeType="Binary"/>
+        <relationship name="disc" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Disc" inverseName="image" inverseEntity="Disc"/>
+    </entity>
+</model>
