@@ -18,11 +18,11 @@ struct JukeApp: App {
         }
 
         Window("Jukebox", id: "jukebox") {
-            let program = JukeboxProgram()
+//            let program = JukeboxProgram()
             ScrollView([.horizontal, .vertical]) {
-                JukeboxPanel(layout: JukeboxLayout.seeburgM100)
+                JukeboxPanel(layout: JukeboxType.seeburgM100.layout)
                     .environment(\.managedObjectContext, persistenceController.container.viewContext)
-                    .environmentObject(program)
+                    .environmentObject(Jukebox.mockProgram)
             }
         }
     }

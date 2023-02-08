@@ -111,3 +111,64 @@ extension DiscImage {
         }
     }
 }
+
+extension Jukebox {
+    public var allPrograms: [Program] {
+        let set = programs as? Set<Program> ?? []
+        return set.sorted {
+            ($0.createdAt ?? Date()) < ($1.createdAt ?? Date())
+        }
+    }
+}
+
+extension Selection {
+    var slot: JukeboxSlotContents {
+        get {
+            return JukeboxSlotContents(stringValue: slotName ?? "")
+        }
+        set {
+            slotName = newValue.stringValue
+        }
+    }
+
+    var slotMapping: (JukeboxSlotContents, Disc)? {
+        if let disc = disc {
+            return (slot, disc)
+        } else {
+            return nil
+        }
+    }
+}
+
+extension Program {
+    var allSelections: Set<Selection> { selections as? Set<Selection> ?? [] }
+
+    var selectionMap: [JukeboxSlotContents:Disc] {
+        Dictionary(uniqueKeysWithValues: allSelections.compactMap(\.slotMapping))
+    }
+
+    func selection(in slot: JukeboxSlotContents) -> Selection? {
+        allSelections.first(where: { $0.slot == slot })
+    }
+
+    func selection(for disc: Disc) -> Selection? {
+        allSelections.first(where: { $0.disc == disc })
+    }
+
+    func place(_ disc: Disc, at slot: JukeboxSlotContents) {
+        NSLog("Placing \(disc) in \(slot)")
+
+        if let existingSelection = selection(for: disc) {
+            managedObjectContext?.delete(existingSelection)
+        }
+
+        if let selection = selection(in: slot) {
+            selection.disc = disc
+        } else {
+            let selection = Selection(context: managedObjectContext!)
+            selection.slot = slot
+            selection.disc = disc
+            selection.program = self
+        }
+    }
+}

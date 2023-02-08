@@ -233,21 +233,9 @@ struct GridTile: View {
 
 struct LibraryView_Previews: PreviewProvider {
     static var previews: some View {
-
         return Group {
-
-
             GridTile(disc: Disc.mocks.first!, isSelected: .constant(false))
                 .previewDisplayName("Grid Tile")
-//                .previewLayout(PreviewLayout.sizeThatFits)
-//                .padding()
-//                .previewDisplayName("Deselected Tile")
-//
-//            GridTile(disc: mockDisc, isSelected: true)
-//                .previewLayout(PreviewLayout.sizeThatFits)
-//                .padding()
-//                .previewDisplayName("Selected Tile")
-
         }
     }
 }

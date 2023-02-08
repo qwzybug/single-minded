@@ -30,9 +30,9 @@ struct TopLevelNavigation: View {
                 LibraryView().environment(\.managedObjectContext, viewContext)
 
             case .jukebox:
-                let program = JukeboxProgram()
+//                let program = JukeboxProgram()
                 ScrollView([.horizontal, .vertical]) {
-                    JukeboxPanel(layout: JukeboxLayout.seeburgM100)
+                    JukeboxPanel(layout: JukeboxType.seeburgM100.layout)
                 }
 
             case .test:

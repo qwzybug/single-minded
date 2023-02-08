@@ -7,19 +7,6 @@
 
 import Foundation
 
-class JukeboxProgram: ObservableObject {
-    @Published var mapping: [JukeboxSlotContents:Disc] = [:]
-
-    func place(_ disc: Disc, at slot: JukeboxSlotContents) {
-        NSLog("Placing \(disc) in \(slot)")
-        if let oldSlot = mapping.first(where: { (_, value) in value == disc }) {
-            NSLog("Removing disc from slot \(oldSlot.key)")
-            mapping.removeValue(forKey: oldSlot.key)
-        }
-        mapping[slot] = disc
-    }
-}
-
 enum JukeboxSlotContents: Hashable, Equatable {
     case song(Character, Int)
     case blank
@@ -43,30 +30,64 @@ enum JukeboxSlotContents: Hashable, Equatable {
             JukeboxSlotContents.song(indexCharacter, 2 * idx + 1)
         }
     }
+
+    var stringValue: String {
+        switch self {
+        case let .song(character, number):
+            return "\(character)\(number)"
+        case .blank:
+            return ""
+        }
+    }
+
+    init(stringValue: String) {
+        guard stringValue.count > 1 else {
+            self = .blank
+            return
+        }
+        let character = stringValue[stringValue.startIndex]
+        guard let number = Int(stringValue.dropFirst(1)) else {
+            self = .blank
+            return
+        }
+        self = .song(character, number)
+    }
 }
 
 struct JukeboxLayout {
     let sections: [JukeboxSection?]
     let columns: Int
+}
 
-    static var seeburgM100: Self = {
-        let abSlots = JukeboxSlotContents.bank("A", count: 5) + JukeboxSlotContents.bank("B", count: 5)
-        let cdSlots = JukeboxSlotContents.bank("C", count: 5) + JukeboxSlotContents.bank("D", count: 5)
-        let efSlots = JukeboxSlotContents.bank("E", count: 5) + JukeboxSlotContents.bank("F", count: 5)
-        let ghSlots = JukeboxSlotContents.bank("G", count: 5) + JukeboxSlotContents.bank("H", count: 5)
+enum JukeboxType: String {
+    case seeburgM100
 
-        let jSlots = JukeboxSlotContents.bank("J", count: 5).inserting(.blank, at: 2)
-        let kSlots = JukeboxSlotContents.bank("K", count: 5).inserting(.blank, at: 5)
+    case undefined
 
-        let abSection = JukeboxSection(title: "HIT TUNES", slots: abSlots, rows: 5, cols: 2)
-        let cdSection = JukeboxSection(title: "HIT TUNES", slots: cdSlots, rows: 5, cols: 2)
-        let efSection = JukeboxSection(title: "HIT TUNES", slots: efSlots, rows: 5, cols: 2)
-        let ghSection = JukeboxSection(title: "WESTERN SONGS", slots: ghSlots, rows: 5, cols: 2)
-        let jSection = JukeboxSection(title: "CLASSICAL SELECTIONS", slots: jSlots, rows: 3, cols: 2)
-        let kSection = JukeboxSection(title: "OLD FAVORITES", slots: kSlots, rows: 3, cols: 2)
+    var layout: JukeboxLayout {
+        switch self {
+        case .seeburgM100:
+            let abSlots = JukeboxSlotContents.bank("A", count: 5) + JukeboxSlotContents.bank("B", count: 5)
+            let cdSlots = JukeboxSlotContents.bank("C", count: 5) + JukeboxSlotContents.bank("D", count: 5)
+            let efSlots = JukeboxSlotContents.bank("E", count: 5) + JukeboxSlotContents.bank("F", count: 5)
+            let ghSlots = JukeboxSlotContents.bank("G", count: 5) + JukeboxSlotContents.bank("H", count: 5)
 
-        return JukeboxLayout(sections: [abSection, cdSection, efSection, ghSection, jSection, nil, nil, kSection], columns: 4)
-    }()
+            let jSlots = JukeboxSlotContents.bank("J", count: 5).inserting(.blank, at: 2)
+            let kSlots = JukeboxSlotContents.bank("K", count: 5).inserting(.blank, at: 5)
+
+            let abSection = JukeboxSection(title: "HIT TUNES", slots: abSlots, rows: 5, cols: 2)
+            let cdSection = JukeboxSection(title: "HIT TUNES", slots: cdSlots, rows: 5, cols: 2)
+            let efSection = JukeboxSection(title: "HIT TUNES", slots: efSlots, rows: 5, cols: 2)
+            let ghSection = JukeboxSection(title: "WESTERN SONGS", slots: ghSlots, rows: 5, cols: 2)
+            let jSection = JukeboxSection(title: "CLASSICAL SELECTIONS", slots: jSlots, rows: 3, cols: 2)
+            let kSection = JukeboxSection(title: "OLD FAVORITES", slots: kSlots, rows: 3, cols: 2)
+
+            return JukeboxLayout(sections: [abSection, cdSection, efSection, ghSection, jSection, nil, nil, kSection], columns: 4)
+
+        case .undefined:
+            return JukeboxLayout(sections: [], columns: 0)
+        }
+    }
 }
 
 struct JukeboxSection: Hashable, Equatable {
@@ -74,17 +95,9 @@ struct JukeboxSection: Hashable, Equatable {
     let slots: [JukeboxSlotContents]
     let rows: Int
     let cols: Int
-//    case bank(title: String, slots: [JukeboxSlotContents], rows: Int, cols: Int)
-//    case blank
 
     func slot(_ row: Int, _ col: Int) -> JukeboxSlotContents {
-//        switch self {
-//        case .bank(_, let slots, let rows, _):
-            let index = col * rows + row
-            return index < slots.count ? slots[index] : .blank
-//
-//        case .blank:
-//            return .blank
-//        }
+        let index = col * rows + row
+        return index < slots.count ? slots[index] : .blank
     }
 }

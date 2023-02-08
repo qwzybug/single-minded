@@ -14,6 +14,7 @@ struct PersistenceController {
         let result = PersistenceController(inMemory: true)
         let viewContext = result.container.viewContext
         Disc.createMocks(in: viewContext)
+        Jukebox.createMocks(in: viewContext)
 //        let _ = Disc.mocks(in: viewContext)
 //        for _ in 0..<10 {
 //            let newItem = Disc(context: viewContext)

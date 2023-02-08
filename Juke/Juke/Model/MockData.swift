@@ -65,13 +65,53 @@ extension Disc {
     }
 }
 
-extension JukeboxProgram {
-    static var mock: JukeboxProgram {
-        let program = JukeboxProgram()
-        program.place(.mocks[0], at: .song("A", 1))
-        program.place(.mocks[1], at: .song("B", 1))
-        program.place(.mocks[2], at: .song("B", 5))
-        program.place(.mocks[3], at: .song("A", 3))
-        return program
+extension Jukebox {
+    static var _mock: Jukebox! = nil
+
+    var type: JukeboxType {
+        return JukeboxType(rawValue: typeName ?? "") ?? .undefined
+    }
+
+    static func createMocks(in context: NSManagedObjectContext) {
+        if _mock != nil { return }
+
+        do {
+            let jukebox = Jukebox(context: context)
+            jukebox.name = "Jukebox"
+            jukebox.typeName = JukeboxType.seeburgM100.rawValue
+
+            let program = Program(context: context)
+            program.name = "Test Program"
+            program.createdAt = Date()
+            program.jukebox = jukebox
+
+            let discs = Disc.mocks
+            let selection = Selection(context: context)
+            selection.slot = .song("A", 1)
+            selection.disc = discs.first!
+            selection.program = program
+
+            try context.save()
+            _mock = jukebox
+        }
+        catch {
+            let nsError = error as NSError
+            fatalError("Unresolved error \(nsError), \(nsError.userInfo)")
+        }
+    }
+
+    static var mockProgram: Program {
+        return _mock.allPrograms.first!
     }
 }
+
+//extension JukeboxProgram {
+//    static var mock: JukeboxProgram {
+//        let program = JukeboxProgram()
+//        program.place(.mocks[0], at: .song("A", 1))
+//        program.place(.mocks[1], at: .song("B", 1))
+//        program.place(.mocks[2], at: .song("B", 5))
+//        program.place(.mocks[3], at: .song("A", 3))
+//        return program
+//    }
+//}

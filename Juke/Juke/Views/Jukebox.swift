@@ -73,7 +73,7 @@ struct JukeboxSlots: View {
 
 struct JukeboxSlot: View {
     @Environment(\.managedObjectContext) private var viewContext: NSManagedObjectContext
-    @EnvironmentObject private var program: JukeboxProgram
+    @EnvironmentObject private var program: Program
     
     @State var slot: JukeboxSlotContents
     @State var targeting = false
@@ -91,7 +91,7 @@ struct JukeboxSlot: View {
     let labelSize: CGSize
 
     var body: some View {
-        let disc = program.mapping[slot]
+        let disc = program.selection(in: slot)?.disc
         HStack(spacing: 4) {
             switch labelSide {
             case .left:
@@ -183,9 +183,9 @@ struct JukeboxPanel_Previews: PreviewProvider {
 
     static var previews: some View {
         Group {
-            JukeboxPanel(layout: JukeboxLayout.seeburgM100)
+            JukeboxPanel(layout: JukeboxType.seeburgM100.layout)
             JukeboxSectionView(contents: abSection)
         }
-        .environmentObject(JukeboxProgram.mock)
+        .environmentObject(Jukebox.mockProgram)
     }
 }
