@@ -119,6 +119,10 @@ extension Jukebox {
             ($0.createdAt ?? Date()) < ($1.createdAt ?? Date())
         }
     }
+
+    public var type: JukeboxType {
+        JukeboxType(rawValue: typeName ?? "") ?? .undefined
+    }
 }
 
 extension Selection {

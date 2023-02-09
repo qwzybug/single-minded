@@ -7,7 +7,7 @@
 
 import Foundation
 
-enum JukeboxSlotContents: Hashable, Equatable {
+public enum JukeboxSlotContents: Hashable, Equatable {
     case song(Character, Int)
     case blank
 
@@ -54,12 +54,14 @@ enum JukeboxSlotContents: Hashable, Equatable {
     }
 }
 
-struct JukeboxLayout {
+public struct JukeboxLayout {
     let sections: [JukeboxSection?]
     let columns: Int
+
+    public static var empty = JukeboxLayout(sections: [], columns: 0)
 }
 
-enum JukeboxType: String {
+public enum JukeboxType: String {
     case seeburgM100
 
     case undefined
@@ -85,12 +87,12 @@ enum JukeboxType: String {
             return JukeboxLayout(sections: [abSection, cdSection, efSection, ghSection, jSection, nil, nil, kSection], columns: 4)
 
         case .undefined:
-            return JukeboxLayout(sections: [], columns: 0)
+            return .empty
         }
     }
 }
 
-struct JukeboxSection: Hashable, Equatable {
+public struct JukeboxSection: Hashable, Equatable {
     let title: String
     let slots: [JukeboxSlotContents]
     let rows: Int

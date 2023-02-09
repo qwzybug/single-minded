@@ -66,19 +66,16 @@ extension Disc {
 }
 
 extension Jukebox {
-    static var _mock: Jukebox! = nil
-
-    var type: JukeboxType {
-        return JukeboxType(rawValue: typeName ?? "") ?? .undefined
-    }
+    static var _mocks: [Jukebox]! = nil
 
     static func createMocks(in context: NSManagedObjectContext) {
-        if _mock != nil { return }
+        if _mocks != nil { return }
 
         do {
             let jukebox = Jukebox(context: context)
             jukebox.name = "Jukebox"
             jukebox.typeName = JukeboxType.seeburgM100.rawValue
+            jukebox.createdAt = Date()
 
             let program = Program(context: context)
             program.name = "Test Program"
@@ -91,8 +88,18 @@ extension Jukebox {
             selection.disc = discs.first!
             selection.program = program
 
+            let jukebox2 = Jukebox(context: context)
+            jukebox2.name = "Juke Too"
+            jukebox2.typeName = JukeboxType.seeburgM100.rawValue
+            jukebox2.createdAt = Date()
+
+            let program2 = Program(context: context)
+            program2.name = "Program"
+            program2.createdAt = Date()
+            program2.jukebox = jukebox2
+
             try context.save()
-            _mock = jukebox
+            _mocks = [jukebox]
         }
         catch {
             let nsError = error as NSError
@@ -101,7 +108,7 @@ extension Jukebox {
     }
 
     static var mockProgram: Program {
-        return _mock.allPrograms.first!
+        return _mocks.first!.allPrograms.first!
     }
 }
 

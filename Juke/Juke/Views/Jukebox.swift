@@ -8,11 +8,51 @@
 import SwiftUI
 
 struct JukeboxPanel: View {
+    @FetchRequest(
+        sortDescriptors: [NSSortDescriptor(keyPath: \Jukebox.createdAt, ascending: false)],
+        animation: .default)
+    private var jukeboxes: FetchedResults<Jukebox>
+
+    @State var sidebarVisible = NavigationSplitViewVisibility.detailOnly
+    @State var selectedProgramID: Program.ID?
+
+    var allPrograms: [Program] {
+        jukeboxes.flatMap(\.allPrograms)
+    }
+
     let layout: JukeboxLayout
 
     var body: some View {
+        NavigationSplitView(columnVisibility: $sidebarVisible) {
+            List(selection: $selectedProgramID) {
+                ForEach(jukeboxes) { jukebox in
+                    Section(header: Text(jukebox.name ?? "(unknown)")) {
+                        ForEach(jukebox.allPrograms) { program in
+                            Text(program.name ?? "(unknown)")
+                        }
+                    }
+                }
+            }
+        } detail: {
+            if let program = allPrograms.first(where: { $0.id == selectedProgramID }) {
+                ScrollView([.horizontal, .vertical]) {
+                    JukeboxContentView()
+                        .navigationTitle("\(program.jukebox?.name ?? "(unknown)"): \(program.name ?? "(unknown)")")
+                        .environmentObject(program)
+                }
+            }
+        }
+    }
+
+}
+
+struct JukeboxContentView: View {
+    @EnvironmentObject var program: Program
+
+    var body: some View {
+        let layout = program.jukebox?.type.layout ?? .empty
         let columns = Array(repeating: GridItem(.fixed(470)), count: layout.columns)
-        LazyVGrid(columns: columns) {
+        return LazyVGrid(columns: columns) {
             ForEach(layout.sections, id: \.self) { section in
                 if let section = section {
                     JukeboxSectionView(contents: section)

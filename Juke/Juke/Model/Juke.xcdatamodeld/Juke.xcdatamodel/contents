@@ -19,6 +19,7 @@
         <relationship name="disc" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Disc" inverseName="image" inverseEntity="Disc"/>
     </entity>
     <entity name="Jukebox" representedClassName="Jukebox" syncable="YES" codeGenerationType="class">
+        <attribute name="createdAt" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
         <attribute name="name" optional="YES" attributeType="String"/>
         <attribute name="typeName" optional="YES" attributeType="String"/>
         <relationship name="programs" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Program" inverseName="jukebox" inverseEntity="Program"/>
