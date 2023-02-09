@@ -38,31 +38,31 @@ struct LibraryView: View {
 
     var body: some View {
         contentView
-            .toolbar {
-                ToolbarItem {
-                    Button(action: showJukebox) {
-                        Label("Show Jukebox", systemImage: "rectangle.grid.1x2")
-                        Text("Program Jukebox")
-                    }
-                }
-                ToolbarItem {
-                    Picker("Mode", selection: $viewMode) {
-                        ForEach(ViewMode.allCases) { mode in
-                            Image(systemName: mode.symbolName)
-                        }
-                    }
-                    .pickerStyle(.segmented)
-                }
-                ToolbarItem {
-                    Button(action: addDisc) {
-                        Label("Add Disc", systemImage: "plus")
-                    }
+        .toolbar {
+            ToolbarItem {
+                Button(action: showJukebox) {
+                    Label("Show Jukebox", systemImage: "rectangle.grid.1x2")
+                    Text("Program Jukebox")
                 }
             }
-            .sheet(item: $editingDisc) { disc in
-                DiscEditor(disc: disc)
+            ToolbarItem {
+                Picker("Mode", selection: $viewMode) {
+                    ForEach(ViewMode.allCases) { mode in
+                        Image(systemName: mode.symbolName)
+                    }
+                }
+                .pickerStyle(.segmented)
             }
-            .navigationTitle("Library")
+            ToolbarItem {
+                Button(action: addDisc) {
+                    Label("Add Disc", systemImage: "plus")
+                }
+            }
+        }
+        .sheet(item: $editingDisc) { disc in
+            DiscEditor(disc: disc)
+        }
+        .navigationTitle("Library")
     }
 
     func showJukebox() {
@@ -171,11 +171,20 @@ struct DiscsTable: View {
     }
 
     var body: some View {
-        Table(discs, selection: $selectedDiscID) {
+        Table(of: Disc.self, selection: $selectedDiscID) {
             TableColumn("Artist(s)", value: \.discArtist)
             TableColumn("Side A", value: \.sideA)
             TableColumn("Side B", value: \.sideB)
             TableColumn("Added", value: \.creationDate)
+        } rows: {
+            ForEach(discs) { disc in
+                TableRow(disc)
+                    .itemProvider {
+                        let provider = NSItemProvider()
+                        provider.register(disc.objectID.uriRepresentation())
+                        return provider
+                    }
+            }
         }
         .contextMenu(forSelectionType: Disc.ID.self) { items in
             // edit, show in program...
