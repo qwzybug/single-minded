@@ -13,7 +13,7 @@ struct LibraryView: View {
     @Environment(\.openWindow) private var openWindow
 
     @FetchRequest(
-        sortDescriptors: [NSSortDescriptor(keyPath: \Disc.createdAt, ascending: true)],
+        sortDescriptors: [SortDescriptor(\Disc.createdAt, order: .forward)],
         animation: .default)
     private var discs: FetchedResults<Disc>
 
@@ -166,18 +166,23 @@ struct DiscsTable: View {
 
     @State var discs: FetchedResults<Disc>
 
+    @State private var sortOrder = [KeyPathComparator(\Disc.createdAt)]
+    var sortedDiscs: [Disc] {
+        return discs.sorted(using: sortOrder)
+    }
+
     private var selectedDisc: Disc? {
         discs.first(where: { $0.id == selectedDiscID })
     }
 
     var body: some View {
-        Table(of: Disc.self, selection: $selectedDiscID) {
+        Table(of: Disc.self, selection: $selectedDiscID, sortOrder: $sortOrder) {
             TableColumn("Artist(s)", value: \.discArtist)
             TableColumn("Side A", value: \.sideA)
             TableColumn("Side B", value: \.sideB)
             TableColumn("Added", value: \.creationDate)
         } rows: {
-            ForEach(discs) { disc in
+            ForEach(sortedDiscs) { disc in
                 TableRow(disc)
                     .itemProvider {
                         let provider = NSItemProvider()
