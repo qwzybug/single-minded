@@ -17,6 +17,8 @@ struct LibraryView: View {
         animation: .default)
     private var discs: FetchedResults<Disc>
 
+    @State private var searchString: String = ""
+
     enum ViewMode: String, CaseIterable, Hashable, Identifiable {
         case table
         case grid
@@ -42,7 +44,7 @@ struct LibraryView: View {
             ToolbarItem {
                 Button(action: showJukebox) {
                     Label("Show Jukebox", systemImage: "rectangle.grid.1x2")
-                    Text("Program Jukebox")
+                    Text("Jukebox")
                 }
             }
             ToolbarItem {
@@ -63,6 +65,10 @@ struct LibraryView: View {
             DiscEditor(disc: disc)
         }
         .navigationTitle("Library")
+        .searchable(text: $searchString)
+        .onChange(of: searchString) { newValue in
+            discs.nsPredicate = newValue.isEmpty ? nil : NSPredicate(format: "sideAArtist.name CONTAINS[cd] %@ OR sideBArtist.name CONTAINS[cd] %@ OR sideATitle CONTAINS[cd] %@ OR sideBTitle CONTAINS[cd] %@", newValue, newValue, newValue, newValue, newValue)
+        }
     }
 
     func showJukebox() {
@@ -71,7 +77,7 @@ struct LibraryView: View {
 
     var contentView: some View {
         switch viewMode {
-        case .table: return AnyView(DiscsTable(selectedDiscID: $selectedDiscID, editingDisc: $editingDisc, discs: discs))
+        case .table: return AnyView(DiscsTable(selectedDiscID: $selectedDiscID, editingDisc: $editingDisc, discs: .constant(discs)))
         case .grid:  return AnyView(gridView)
         }
     }
@@ -164,7 +170,7 @@ struct DiscsTable: View {
     @Binding var selectedDiscID: Disc.ID?
     @Binding var editingDisc: Disc?
 
-    @State var discs: FetchedResults<Disc>
+    @Binding var discs: FetchedResults<Disc>
 
     @State private var sortOrder = [KeyPathComparator(\Disc.createdAt)]
     var sortedDiscs: [Disc] {
